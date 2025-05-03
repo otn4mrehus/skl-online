@@ -5,10 +5,10 @@ session_start();
 // Konfigurasi dasar
 $school_name = "SMKN 6 Kota Serang";
 $school_year = "2024/2025";
-$default_announcement_time = date('Y-m-d H:i:s', strtotime('+3 days'));
 
 // File paths
 $students_file = 'siswa.csv';
+$settings_file = 'settings.csv';
 $upload_dir = 'upload/';
 $photo_prefix = 'foto_';
 $skl_prefix = 'skl_';
@@ -30,55 +30,39 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 $error = '';
 $success = '';
 
-
-
-// [################## Versi Awal ###########################]
-/*
-// Fungsi untuk memuat data siswa dari CSV
-function loadStudents($file) {
-    $students = [];
+// Fungsi untuk memuat settings dari CSV
+function loadSettings($file) {
+    $settings = [
+        'announcement_time' => date('Y-m-d H:i:s', strtotime('+0 days')),
+        'admin_username' => 'admin',
+        'admin_password' => 'admin123'
+    ];
+    
     if (file_exists($file)) {
         $handle = fopen($file, 'r');
         while (($data = fgetcsv($handle)) !== false) {
-            $students[$data[1]] = [ // NISN sebagai key
-                'name' => $data[0],
-                'nisn' => $data[1],
-                'birth_place' => $data[2],
-                'birth_date' => $data[3],
-                'class' => $data[4],
-                'status' => $data[5],
-                'photo' => $data[6],
-                'skl' => $data[7]
-            ];
+            if (count($data) >= 2) {
+                $settings[$data[0]] = $data[1];
+            }
         }
         fclose($handle);
     }
-    return $students;
+    return $settings;
 }
 
-
-// Fungsi untuk menyimpan data siswa ke CSV 
-function saveStudents($file, $students) {
+// Fungsi untuk menyimpan settings ke CSV
+function saveSettings($file, $settings) {
     $handle = fopen($file, 'w');
-    foreach ($students as $student) {
-        fputcsv($handle, [
-            $student['name'],
-            $student['nisn'],
-            $student['birth_place'],
-            $student['birth_date'],
-            $student['class'],
-            $student['status'],
-            $student['photo'],
-            $student['skl']
-        ]);
+    foreach ($settings as $key => $value) {
+        fputcsv($handle, [$key, $value]);
     }
     fclose($handle);
 }
-*/
-// [################## Versi Awal ###########################]
 
+// Memuat settings
+$settings = loadSettings($settings_file);
+$default_announcement_time = $settings['announcement_time'];
 
-// [################## Versi Kedua ###########################]
 // Fungsi untuk memuat data siswa dari CSV dengan validasi
 function loadStudents($file) {
     $students = [];
@@ -131,24 +115,9 @@ function saveStudents($file, $students) {
     }
     fclose($handle);
 }
-// [################## Versi Kedua ###########################]
-
-
-
-
-
-
-
-
 
 // Memuat data siswa
 $students = loadStudents($students_file);
-
-// Simulasi data admin (dalam implementasi nyata, gunakan database dan password hashing)
-$admin_credentials = [
-    'username' => 'admin',
-    'password' => 'admin123' // Dalam produksi, gunakan password_hash()
-];
 
 // Handle logout
 if (isset($_GET['logout'])) {
@@ -167,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim($_POST['admin_username']);
         $password = trim($_POST['admin_password']);
         
-        if ($username === $admin_credentials['username'] && $password === $admin_credentials['password']) {
+        if ($username === $settings['admin_username'] && $password === $settings['admin_password']) {
             $_SESSION['admin_logged_in'] = true;
             $page = 'admin_dashboard';
         } else {
@@ -229,16 +198,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif (isset($_POST['save_settings']) && isset($_SESSION['admin_logged_in'])) {
         // Handle pengaturan
         if (!empty($_POST['announcement_time'])) {
-            $default_announcement_time = $_POST['announcement_time'];
+            $settings['announcement_time'] = $_POST['announcement_time'];
+            $default_announcement_time = $settings['announcement_time'];
             $success = 'Pengaturan berhasil disimpan!';
         }
         
-        // Handle perubahan password admin (dalam implementasi nyata, simpan ke database)
+        // Handle perubahan password admin
         if (!empty($_POST['admin_password_change'])) {
-            // Simpan password baru (dalam produksi, gunakan password_hash())
-            $admin_credentials['password'] = $_POST['admin_password_change'];
+            $settings['admin_password'] = $_POST['admin_password_change'];
             $success = 'Pengaturan berhasil disimpan!';
         }
+        
+        // Simpan settings ke file
+        saveSettings($settings_file, $settings);
     }
     elseif (isset($_POST['delete_student']) && isset($_SESSION['admin_logged_in'])) {
         // Handle penghapusan siswa
@@ -326,8 +298,8 @@ function formatDate($date) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
             color: #333;
-    	padding-top: 56px; /* Height of navbar */
-    	scroll-padding-top: 56px; /* For anchor links */
+            padding-top: 56px; /* Height of navbar */
+            scroll-padding-top: 56px; /* For anchor links */
         }
         
         .hero-section {
@@ -381,31 +353,31 @@ function formatDate($date) {
             margin-top: 3rem;
         }
         
-.navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-/* Adjust hero section to account for fixed navbar */
-.hero-section {
-    margin-top: 56px;
-    border-radius: 0 !important;
-}
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        /* Adjust hero section to account for fixed navbar */
+        .hero-section {
+            margin-top: 56px;
+            border-radius: 0 !important;
+        }
 
-/* Mobile menu adjustments */
-@media (max-width: 991.98px) {
-    .navbar-collapse {
-        background-color: #343a40;
-        padding: 10px;
-        margin-top: 8px;
-        border-radius: 5px;
-        max-height: calc(100vh - 56px);
-        overflow-y: auto;
-    }
-}
+        /* Mobile menu adjustments */
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background-color: #343a40;
+                padding: 10px;
+                margin-top: 8px;
+                border-radius: 5px;
+                max-height: calc(100vh - 56px);
+                overflow-y: auto;
+            }
+        }
 
         .nav-tabs .nav-link {
             color: var(--primary-color);
@@ -474,7 +446,7 @@ function formatDate($date) {
 
     <?php if ($page === 'home' || $page === 'check'): ?>
         <!-- Hero Section -->
-	<section class="hero-section" style="margin-top: <?php echo isset($_SESSION['admin_logged_in']) ? '56px' : '0'; ?>">
+        <section class="hero-section" style="margin-top: <?php echo isset($_SESSION['admin_logged_in']) ? '56px' : '0'; ?>">
             <div class="container text-center">
                 <h1 class="display-4 fw-bold mb-4">PENGUMUMAN KELULUSAN</h1>
                 <p class="lead mb-5"><?php echo $school_name; ?> Tahun Ajaran <?php echo $school_year; ?></p>
@@ -829,7 +801,7 @@ function formatDate($date) {
                                     <div class="mb-3">
                                         <label for="adminUsernameChange" class="form-label">Username Admin</label>
                                         <input type="text" class="form-control" id="adminUsernameChange" name="admin_username_change" 
-                                               value="<?php echo htmlspecialchars($admin_credentials['username']); ?>" readonly>
+                                               value="<?php echo htmlspecialchars($settings['admin_username']); ?>" readonly>
                                         <small class="text-muted">Username tidak dapat diubah</small>
                                     </div>
                                     
