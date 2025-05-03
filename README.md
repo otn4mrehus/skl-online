@@ -5,10 +5,13 @@ Kelulusan Online dengan "single code php"
 ```
 + skl-online/
   + assets/
-    - images/
-    - js/
-    - css/
+    + images/
+      - logo.png/jpg
+    + js/
+    + css/
   + upload/
+     - nama_nisn.pdf
+     - nama_nisn.png/jpg
   - index.php
   - siswa.csv  
 ```
