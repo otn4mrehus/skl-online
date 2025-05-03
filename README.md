@@ -17,6 +17,7 @@ Silakan kembangkan lebih lanjut.
   - siswa.csv  
 ```
 ##  Instalasi
+Opsional bagi yang menggunkaan linux
 ```
 git clone ](https://github.com/otn4mrehus/skl-online.git && \
 cd skl-online && \
