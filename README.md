@@ -1,5 +1,6 @@
 # SKL-Online
-Kelulusan Online dengan "single code php"
+Kelulusan Online dengan "single code php", mempermudah sekolah yang ingin mengumumkan secara online dapat dilakukan dengan kode sederhana berikut.
+Silakan kembangkan lebih lanjut.
 
 ## Struktur File & Direktori
 ```
