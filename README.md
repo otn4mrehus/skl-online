@@ -26,6 +26,10 @@ sudo chmod -R 777 /opt/lampp/htdocs/skl-online/assets/ && \
 sudo chown -R www-data:www-data /opt/lampp/htdocs/skl-online/assets/ && \
 sudo chmod -R 777 /opt/lampp/htdocs/skl-online/upload/ && \
 sudo chown -R www-data:www-data /opt/lampp/htdocs/skl-online/upload/ && \
+sudo chmod -R 777 /opt/lampp/htdocs/skl-online/settings.csv && \
+sudo chown -R www-data:www-data /opt/lampp/htdocs/skl-online/settings.csv && \
+sudo chmod -R 777 /opt/lampp/htdocs/skl-online/siswa.csv && \
+sudo chown -R www-data:www-data /opt/lampp/htdocs/skl-online/siswa.csv && \
 ```
 ## Running
 ```
